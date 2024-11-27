@@ -22,6 +22,9 @@ public class Main {
       while (true) {
         final Socket socket = serverSocket.accept();
         final var client = new SocketClient(socket);
+
+        final Thread thread = threadFactory.newThread(client);
+        thread.start();
       }
     }
   }
