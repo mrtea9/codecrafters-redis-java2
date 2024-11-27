@@ -1,6 +1,7 @@
 package client;
 
 import lombok.SneakyThrows;
+import redis.Redis;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -23,6 +24,6 @@ public class SocketClient implements Client, Runnable {
     @Override
     public void run() {
         connected = true;
-        System.out.println("este");
+        Redis.log("%d: connected".formatted(id));
     }
 }
