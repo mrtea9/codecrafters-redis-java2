@@ -23,5 +23,6 @@ public class SocketClient implements Client, Runnable {
     @Override
     public void run() {
         connected = true;
+        System.out.println("este");
     }
 }
