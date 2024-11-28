@@ -22,4 +22,9 @@ public record SetCommand(RString key, RString value, Optional<Duration> expirati
 
         return new CommandResponse(ROk.OK);
     }
+
+    @Override
+    public boolean isPropagatable() {
+        return true;
+    }
 }
