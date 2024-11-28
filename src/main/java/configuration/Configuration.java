@@ -32,4 +32,8 @@ public class Configuration {
 
         return null;
     }
+
+    public Option port() {
+        return port;
+    }
 }
