@@ -132,7 +132,6 @@ public class SocketClient implements Client, Runnable {
                 Redis.error("%d:   %s".formatted(id, line.replace("\r", "")));
             }
         }
-
         Redis.log("%d: disconnected".formatted(id));
 
         synchronized (this) {
