@@ -26,6 +26,7 @@ public class CommandParser {
         register("ECHO", singleArgumentCommand(EchoCommand::new));
         register("SET", this::parseSet);
         register("GET", singleArgumentCommand(GetCommand::new));
+        register("KEYS", singleArgumentCommand(KeysCommand::new));
     }
 
     public void register(String name, BiFunction<String, List<RString>, Command> parser) {
