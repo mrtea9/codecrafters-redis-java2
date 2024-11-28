@@ -49,6 +49,16 @@ public class SocketClient implements Client, Runnable {
             final var read = inputStream.count();
 
             Redis.log("%d: received (%d): %s".formatted(id, read, request));
+            final var response = evaluator.evaluate(this, request, read);
+
+            if (response == null) {
+                Redis.log("%d: no response".formatted(id));
+            } else {
+                Redis.log("%d: responding: %s".formatted(id, response));
+                serializer.write(response.value());
+            }
+
+            outputStream.flush();
 
         } catch (Exception exception) {
             Redis.error("%d: returned an error: %s".formatted(id, exception.getMessage()));
