@@ -24,7 +24,8 @@ public class Configuration {
     private final List<Option> options = Arrays.asList(
             port,
             directory,
-            databaseFilename
+            databaseFilename,
+            replicaOf
     );
 
     public List<Option> options() {
