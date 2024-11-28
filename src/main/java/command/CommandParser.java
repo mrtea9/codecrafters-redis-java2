@@ -29,7 +29,6 @@ public class CommandParser {
         register("GET", singleArgumentCommand(GetCommand::new));
     }
 
-
     public void register(String name, BiFunction<String, List<RString>, Command> parser) {
         parsers.put(name, parser);
     }
