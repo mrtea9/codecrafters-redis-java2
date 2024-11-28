@@ -5,6 +5,7 @@ import command.CommandParser;
 import command.CommandResponse;
 import command.ParsedCommand;
 import configuration.Configuration;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import store.Storage;
 import type.RArray;
@@ -13,12 +14,14 @@ import type.RErrorException;
 import type.RString;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicLong;
 
 @RequiredArgsConstructor
 public class Redis {
 
-    private final Storage storage;
-    private final Configuration configuration;
+    private final @Getter Storage storage;
+    private final @Getter Configuration configuration;
+    private @Getter AtomicLong replicationOffset = new AtomicLong();
     private final CommandParser commandParser = new CommandParser();
 
     public Redis(Storage storage, Configuration configuration) {
@@ -66,6 +69,10 @@ public class Redis {
         return response;
     }
 
+    public String getMasterReplicationId() {
+        return configuration.masterReplicationId().argument(0, String.class).get();
+    }
+
     public static void log(String message) {
         System.out.println("[%d] [%s] %s".formatted(ProcessHandle.current().pid(), LocalDateTime.now(), message));
     }
@@ -80,5 +87,9 @@ public class Redis {
 
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    public AtomicLong getReplicationOffset() {
+        return replicationOffset;
     }
 }
