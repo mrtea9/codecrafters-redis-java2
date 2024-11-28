@@ -61,11 +61,7 @@ public class Main {
           System.out.println(stringPath);
           final var path = Paths.get(stringPath);
 
-          System.out.println(Files.exists(path));
-          if (Files.exists(path)) {
-            System.out.println("este");
-            RdbLoader.load(path, storage);
-          }
+          RdbLoader.load(path, storage);
         }
 
         final int port = configuration.port().argument(0, Integer.class).get();
