@@ -28,7 +28,6 @@ public class Redis {
     @SuppressWarnings("unchecked")
     public CommandResponse evaluate(Client client, Object value, long read) {
         try {
-            System.out.println(value.getClass());
 
             if (value instanceof RArray array) {
                 return execute(client, (RArray<RString>) array);
