@@ -22,6 +22,7 @@ public record ConfigCommand(RString action, RString key) implements Command {
             ));
         }
 
+
         throw new RError("ERR unknown subcommand '%s'. TRY CONFIG HELP.".formatted(action)).asException();
     }
 }
