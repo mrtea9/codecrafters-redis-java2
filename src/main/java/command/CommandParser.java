@@ -1,6 +1,7 @@
 package command;
 
 import command.builtin.*;
+import command.builtin.replication.ReplConfCommand;
 import type.RArray;
 import type.RError;
 import type.RString;
@@ -30,6 +31,7 @@ public class CommandParser {
         register("INFO", singleArgumentCommand(InfoCommand::new));
 
         register("CONFIG", doubleArgumentCommand(ConfigCommand::new));
+        register("REPLCONF", doubleArgumentCommand(ReplConfCommand::new));
     }
 
     public void register(String name, BiFunction<String, List<RString>, Command> parser) {
