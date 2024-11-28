@@ -56,7 +56,7 @@ public class SocketClient implements Client, Runnable {
             final var deserializer = new Deserializer(inputStream);
             final var serializer = new Serializer(outputStream);
 
-            while (!replicate) {
+            while (true) {
                 inputStream.begin();
 
                 final var request = deserializer.read();
