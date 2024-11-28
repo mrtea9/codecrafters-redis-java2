@@ -19,7 +19,7 @@ public class Serializer {
 
     private final OutputStream outputStream;
 
-    public Serializer(TrackedOutputStream outputStream) {
+    public Serializer(OutputStream outputStream) {
         this.outputStream = outputStream;
     }
 

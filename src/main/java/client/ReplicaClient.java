@@ -32,7 +32,7 @@ public class ReplicaClient implements Client, Runnable {
         final var outputStream = socket.getOutputStream();
 
         deserializer = new Deserializer(inputStream);
-        serializer = new Serializer((TrackedOutputStream) outputStream);
+        serializer = new Serializer(outputStream);
     }
 
     @SneakyThrows
