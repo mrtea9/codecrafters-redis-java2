@@ -58,6 +58,7 @@ public class Main {
         System.out.println(databaseFilename.get());
         if (directory.isSet() && databaseFilename.isSet()) {
           final var stringPath = directory.get() + "/" + databaseFilename.get();
+          System.out.println(stringPath);
           final var path = Paths.get(stringPath);
 
           System.out.println(Files.exists(path));
