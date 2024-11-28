@@ -7,6 +7,7 @@ import lombok.SneakyThrows;
 import redis.Redis;
 import serial.Deserializer;
 import serial.Serializer;
+import type.RBlob;
 import type.RValue;
 import util.TrackedInputStream;
 import util.TrackedOutputStream;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -56,7 +58,7 @@ public class SocketClient implements Client, Runnable {
             final var deserializer = new Deserializer(inputStream);
             final var serializer = new Serializer(outputStream);
 
-            while (true) {
+            while (!replicate) {
                 inputStream.begin();
 
                 final var request = deserializer.read();
@@ -77,23 +79,48 @@ public class SocketClient implements Client, Runnable {
                 outputStream.flush();
             }
 
-//            if (replicate) {
-//                Thread.ofVirtual().start(new Runnable() {
-//
-//                    @Override
-//                    @SneakyThrows
-//                    public void run() {
-//                        while (socket.isConnected()) {
-//                            final RValue request;
-//                            request = deserializer.read();
-//                            if (request == null) break;
-//
-//                            final var consumer = replicateConsumer;
-//                            if (consumer != null) consumer.accept(request);
-//                        }
-//                    }
-//                });
-//            }
+            if (replicate) {
+                Thread.ofVirtual().start(new Runnable() {
+
+                    @Override
+                    @SneakyThrows
+                    public void run() {
+                        while (socket.isConnected()) {
+                            RValue request = null;
+                            try {
+                                request = deserializer.read();
+                            } catch (IOException e) {
+                                System.out.println(e.getMessage());
+                            }
+                            if (request == null) break;
+
+                            final var consumer = replicateConsumer;
+                            if (consumer != null) consumer.accept(request);
+                        }
+                    }
+                });
+            }
+
+            while (replicate && socket.isConnected()) {
+                final var command = pendingCommands.poll(1, TimeUnit.MINUTES);
+                if (command == null) {
+                    continue;
+                }
+
+                Redis.log("%d: send command: %s".formatted(id, command));
+
+                outputStream.begin();
+                serializer.write(command.value());
+                serializer.flush();
+
+                if (command.value() instanceof RBlob) {
+                    offset = 0;
+                    Redis.log("%d: reset offset".formatted(id));
+                } else {
+                    offset += outputStream.count();
+                    Redis.log("%d: offset: %d".formatted(id, offset));
+                }
+            }
 
         } catch (Exception exception) {
             Redis.error("%d: returned an error: %s".formatted(id, exception.getMessage()));
