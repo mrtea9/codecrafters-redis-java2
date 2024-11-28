@@ -59,9 +59,14 @@ public class Main {
         if (directory.isSet() && databaseFilename.isSet()) {
           final var stringPath = directory.get() + "/" + databaseFilename.get();
           System.out.println(stringPath);
-          final var path = Paths.get(stringPath);
+          final var path = Paths.get(directory.get(), databaseFilename.get());
+          System.out.println(path.toString());
 
-          RdbLoader.load(path, storage);
+          System.out.println(Files.exists(path));
+          if (Files.exists(path)) {
+              System.out.println("este");
+              RdbLoader.load(path, storage);
+          }
         }
 
         final int port = configuration.port().argument(0, Integer.class).get();
