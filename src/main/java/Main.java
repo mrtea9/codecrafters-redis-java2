@@ -2,10 +2,13 @@ import client.SocketClient;
 import configuration.Configuration;
 import redis.Redis;
 import store.Storage;
+import rdb.RdbLoader;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.ThreadFactory;
 import java.util.stream.Collectors;
 
@@ -47,6 +50,14 @@ public class Main {
         }
 
         final Redis redis = new Redis(storage, configuration);
+
+        final var directory = configuration.directory().pathArgument();
+        final var databaseFilename = configuration.databaseFilename().pathArgument();
+        if (directory.isSet() && databaseFilename.isSet()) {
+          final var path = Paths.get(directory.get(), databaseFilename.get());
+
+          if (Files.exists(path)) RdbLoader.load(path, storage);
+        }
 
         final int port = configuration.port().argument(0, Integer.class).get();
         System.out.println("port: %s".formatted(port));

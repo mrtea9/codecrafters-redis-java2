@@ -36,4 +36,12 @@ public class Configuration {
     public Option port() {
         return port;
     }
+
+    public PathOption directory() {
+        return directory;
+    }
+
+    public PathOption databaseFilename() {
+        return databaseFilename;
+    }
 }
