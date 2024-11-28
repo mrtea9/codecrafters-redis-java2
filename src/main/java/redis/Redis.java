@@ -9,10 +9,7 @@ import configuration.Configuration;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import store.Storage;
-import type.RArray;
-import type.RError;
-import type.RErrorException;
-import type.RString;
+import type.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,7 +41,8 @@ public class Redis {
 
             return new CommandResponse(new RError("ERR command be sent in an array"));
         } finally {
-            log("da");
+            final var offset = replicationOffset.addAndGet(read);
+            log("offset: %s".formatted(offset));
         }
     }
 
@@ -69,13 +67,29 @@ public class Redis {
     private CommandResponse doExecute(Client client, ParsedCommand parsedCommand) {
         final var command = parsedCommand.command();
 
+        if (client instanceof SocketClient socketClient && socketClient.isInTransaction() && command.isQueueable()) {
+            socketClient.queueCommand(parsedCommand);
+            return new CommandResponse(ROk.QUEUED);
+        }
+
         final var response = command.execute(this, client);
+        if (command.isPropagatable()) {
+            propagate(parsedCommand.raw());
+        }
 
         return response;
     }
 
     public String getMasterReplicationId() {
         return configuration.masterReplicationId().argument(0, String.class).get();
+    }
+
+    public void propagate(RArray<RString> command) {
+        final var payload = new CommandResponse(command);
+
+        replicas.forEach((client) -> {
+            client.command(payload);
+        });
     }
 
     public static void log(String message) {
