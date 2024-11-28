@@ -1,5 +1,6 @@
 package command;
 
+import command.builtin.EchoCommand;
 import type.RArray;
 import type.RError;
 import type.RString;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class CommandParser {
@@ -17,6 +19,7 @@ public class CommandParser {
 
     public CommandParser() {
         register("PING", noArgumentCommand(PingCommand::new));
+        register("ECHO", singleArgumentCommand(EchoCommand::new));
     }
 
     public void register(String name, BiFunction<String, List<RString>, Command> parser) {
@@ -41,6 +44,15 @@ public class CommandParser {
             if (!arguments.isEmpty()) throw wrongNumberOfArguments(name).asException();
 
             return constructor.get();
+        };
+    }
+
+    private BiFunction<String, List<RString>, Command> singleArgumentCommand(Function<RString, Command> constructor) {
+        return (name, arguments) -> {
+            if (arguments.size() != 1) throw wrongNumberOfArguments(name).asException();
+
+            final var first = arguments.getFirst();
+            return constructor.apply(first);
         };
     }
 
