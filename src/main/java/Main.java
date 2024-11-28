@@ -53,6 +53,9 @@ public class Main {
 
         final var directory = configuration.directory().pathArgument();
         final var databaseFilename = configuration.databaseFilename().pathArgument();
+
+        System.out.println(directory);
+        System.out.println(databaseFilename);
         if (directory.isSet() && databaseFilename.isSet()) {
           final var path = Paths.get(directory.get(), databaseFilename.get());
 
