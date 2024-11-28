@@ -4,6 +4,7 @@ import redis.Redis;
 import store.Storage;
 import rdb.RdbLoader;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -57,10 +58,10 @@ public class Main {
         System.out.println(directory.get());
         System.out.println(databaseFilename.get());
         if (directory.isSet() && databaseFilename.isSet()) {
-          final var stringPath = directory.get() + "/" + databaseFilename.get();
-          System.out.println(stringPath);
           final var path = Paths.get(directory.get(), databaseFilename.get());
           System.out.println(path.toString());
+
+          File file = new File(String.valueOf(path));
 
           System.out.println(Files.exists(path));
           if (Files.exists(path)) {
