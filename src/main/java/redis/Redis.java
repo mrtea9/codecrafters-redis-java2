@@ -1,6 +1,7 @@
 package redis;
 
 import client.Client;
+import client.SocketClient;
 import command.CommandParser;
 import command.CommandResponse;
 import command.ParsedCommand;
@@ -14,6 +15,9 @@ import type.RErrorException;
 import type.RString;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 @RequiredArgsConstructor
@@ -21,6 +25,7 @@ public class Redis {
 
     private final @Getter Storage storage;
     private final @Getter Configuration configuration;
+    private final @Getter List<SocketClient> replicas = Collections.synchronizedList(new ArrayList<>());
     private @Getter AtomicLong replicationOffset = new AtomicLong();
     private final CommandParser commandParser = new CommandParser();
 
@@ -91,5 +96,9 @@ public class Redis {
 
     public AtomicLong getReplicationOffset() {
         return replicationOffset;
+    }
+
+    public List<SocketClient> getReplicas() {
+        return replicas;
     }
 }

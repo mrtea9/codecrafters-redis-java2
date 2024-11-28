@@ -1,6 +1,7 @@
 package command;
 
 import command.builtin.*;
+import command.builtin.replication.PSyncCommand;
 import command.builtin.replication.ReplConfCommand;
 import type.RArray;
 import type.RError;
@@ -21,6 +22,8 @@ public class CommandParser {
     private final Map<String, BiFunction<String, List<RString>, Command>> parsers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public CommandParser() {
+        register("PSYNC", (_, __) -> new PSyncCommand());
+
         register("SET", this::parseSet);
 
         register("PING", noArgumentCommand(PingCommand::new));
