@@ -1,5 +1,7 @@
+import client.ReplicaClient;
 import client.SocketClient;
 import configuration.Configuration;
+import lombok.SneakyThrows;
 import redis.Redis;
 import store.Storage;
 import rdb.RdbLoader;
@@ -50,17 +52,24 @@ public class Main {
             System.out.println("configuration: %s(%s)".formatted(option.name(), arguments));
         }
 
+        final var isSlave = configuration.isSlave();
+        System.out.println("configuration: isSlave=%s".formatted(isSlave));
+
         final Redis redis = new Redis(storage, configuration);
 
-        final var directory = configuration.directory().pathArgument();
-        final var databaseFilename = configuration.databaseFilename().pathArgument();
+        if (isSlave) {
+            connectToMaster(redis);
+        } else {
+            final var directory = configuration.directory().pathArgument();
+            final var databaseFilename = configuration.databaseFilename().pathArgument();
 
-        if (directory.isSet() && databaseFilename.isSet()) {
-          final var path = Paths.get(directory.get(), databaseFilename.get());
+            if (directory.isSet() && databaseFilename.isSet()) {
+                final var path = Paths.get(directory.get(), databaseFilename.get());
 
-          if (Files.exists(path)) {
-              RdbLoader.load(path, storage);
-          }
+                if (Files.exists(path)) {
+                    RdbLoader.load(path, storage);
+                }
+            }
         }
 
         final int port = configuration.port().argument(0, Integer.class).get();
@@ -77,5 +86,17 @@ public class Main {
                 thread.start();
             }
         }
+    }
+
+    @SneakyThrows
+    public static void connectToMaster(Redis redis) throws IOException {
+        final var replicaOf = redis.getConfiguration().replicaOf();
+        final var host = replicaOf.host();
+        final var port = replicaOf.port();
+
+        System.out.println("replica: connect to master %s:%s".formatted(host, port));
+
+        final var socket = new Socket(host, port);
+        Thread.ofVirtual().start(new ReplicaClient(socket, redis));
     }
 }

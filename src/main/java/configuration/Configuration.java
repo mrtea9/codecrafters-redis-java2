@@ -58,4 +58,8 @@ public class Configuration {
     public Option masterReplicationId() {
         return masterReplicationId;
     }
+
+    public RemoteOption replicaOf() {
+        return replicaOf;
+    }
 }
