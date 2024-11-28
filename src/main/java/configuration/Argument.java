@@ -26,4 +26,12 @@ public class Argument<T> {
     public T get() {
         return value;
     }
+
+    public boolean isSet() {
+        return value != null;
+    }
+
+    public void set(String value) {
+        this.value = converter.apply(value);
+    }
 }

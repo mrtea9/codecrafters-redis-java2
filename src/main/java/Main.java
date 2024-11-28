@@ -7,30 +7,60 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
 
 public class Main {
 
-  public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
-    final ThreadFactory threadFactory = Thread.ofVirtual().factory();
-    final Storage storage = new Storage();
-    final Configuration configuration = new Configuration();
+        final ThreadFactory threadFactory = Thread.ofVirtual().factory();
+        final Storage storage = new Storage();
+        final Configuration configuration = new Configuration();
 
-    final Redis redis = new Redis(storage, configuration);
+        for (int index = 0; index < args.length; index++) {
+            final var key = args[index].substring(2);
 
-    final int port = configuration.port().argument(0, Integer.class).get();
-    System.out.println("port: %s".formatted(port));
+            final var option = configuration.option(key);
+            if (option == null) {
+                System.err.println("unknown property: %s".formatted(key));
+                continue;
+            }
 
-    try (final ServerSocket serverSocket = new ServerSocket(port)) {
-      serverSocket.setReuseAddress(true);
+            final var argumentsCount = option.argumentsCount();
+            for (int jndex = 0; jndex < argumentsCount; jndex++) {
+                final var argumentValue = args[index + 1 + jndex];
+                final var argument = option.argument(jndex);
 
-      while (true) {
-        final Socket socket = serverSocket.accept();
-        final var client = new SocketClient(socket, redis);
+                argument.set(argumentValue);
+            }
 
-        final Thread thread = threadFactory.newThread(client);
-        thread.start();
-      }
+            index += argumentsCount;
+        }
+
+        for (final var option : configuration.options()) {
+            final var arguments = option.arguments()
+                    .stream()
+                    .map((argument -> "%s='%s'".formatted(argument.name(), argument.get())))
+                    .collect(Collectors.joining(", "));
+
+            System.out.println("configuration: %s(%s)".formatted(option.name(), arguments));
+        }
+
+        final Redis redis = new Redis(storage, configuration);
+
+        final int port = configuration.port().argument(0, Integer.class).get();
+        System.out.println("port: %s".formatted(port));
+
+        try (final ServerSocket serverSocket = new ServerSocket(port)) {
+            serverSocket.setReuseAddress(true);
+
+            while (true) {
+                final Socket socket = serverSocket.accept();
+                final var client = new SocketClient(socket, redis);
+
+                final Thread thread = threadFactory.newThread(client);
+                thread.start();
+            }
+        }
     }
-  }
 }
