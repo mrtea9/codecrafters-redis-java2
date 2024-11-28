@@ -20,14 +20,16 @@ public class CommandParser {
     private final Map<String, BiFunction<String, List<RString>, Command>> parsers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public CommandParser() {
-
-        register("CONFIG", doubleArgumentCommand(ConfigCommand::new));
-        register("PING", noArgumentCommand(PingCommand::new));
-        register("ECHO", singleArgumentCommand(EchoCommand::new));
         register("SET", this::parseSet);
+
+        register("PING", noArgumentCommand(PingCommand::new));
+
+        register("ECHO", singleArgumentCommand(EchoCommand::new));
         register("GET", singleArgumentCommand(GetCommand::new));
         register("KEYS", singleArgumentCommand(KeysCommand::new));
         register("INFO", singleArgumentCommand(InfoCommand::new));
+
+        register("CONFIG", doubleArgumentCommand(ConfigCommand::new));
     }
 
     public void register(String name, BiFunction<String, List<RString>, Command> parser) {
