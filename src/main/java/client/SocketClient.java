@@ -198,4 +198,12 @@ public class SocketClient implements Client, Runnable {
     public void setReplicate(boolean replicate) {
         this.replicate = replicate;
     }
+
+    public long getOffset() {
+        return offset;
+    }
+
+    public void setReplicateConsumer(Consumer<Object> replicateConsumer) {
+        this.replicateConsumer = replicateConsumer;
+    }
 }

@@ -3,6 +3,7 @@ package command;
 import command.builtin.*;
 import command.builtin.replication.PSyncCommand;
 import command.builtin.replication.ReplConfCommand;
+import command.builtin.replication.WaitCommand;
 import type.RArray;
 import type.RError;
 import type.RString;
@@ -25,6 +26,7 @@ public class CommandParser {
         register("PSYNC", (_, __) -> new PSyncCommand());
 
         register("SET", this::parseSet);
+        register("WAIT", this::parseWait);
 
         register("PING", noArgumentCommand(PingCommand::new));
 
@@ -80,6 +82,13 @@ public class CommandParser {
 
             return constructor.apply(first, second);
         };
+    }
+
+    private WaitCommand parseWait(String name, List<RString> arguments) {
+        final var numberOfReplicas = arguments.get(0).asInteger().getAsInt();
+        final var timeout = arguments.get(1).asInteger().getAsInt();
+
+        return new WaitCommand(numberOfReplicas, Duration.ofSeconds(timeout));
     }
 
     private SetCommand parseSet(String name, List<RString> arguments) {
