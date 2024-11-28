@@ -1,5 +1,6 @@
 import client.SocketClient;
 import configuration.Configuration;
+import redis.Redis;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -12,6 +13,8 @@ public class Main {
 
     final ThreadFactory threadFactory = Thread.ofVirtual().factory();
     final Configuration configuration = new Configuration();
+
+    final Redis redis = new Redis(configuration);
 
     final int port = configuration.port().argument(0, Integer.class).get();
     System.out.println("port: %s".formatted(port));

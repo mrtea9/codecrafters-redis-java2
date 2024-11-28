@@ -7,4 +7,12 @@ public record RError(RString message) implements RValue {
     public RError(String message) {
         this(RString.simple(message));
     }
+
+    public RErrorException asException() {
+        throw new RErrorException(this);
+    }
+
+    public static RError syntax() {
+        return SYNTAX;
+    }
 }

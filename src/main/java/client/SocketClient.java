@@ -20,10 +20,12 @@ public class SocketClient implements Client, Runnable {
     private final int id;
     private boolean connected;
     private final Socket socket;
+    private final Redis evaluator;
 
-    public SocketClient(Socket socket) throws IOException {
+    public SocketClient(Socket socket, Redis evaluator) throws IOException {
         this.id = ID_INCREMENT.incrementAndGet();
         this.socket = socket;
+        this.evaluator = evaluator;
     }
 
     @SneakyThrows
