@@ -77,29 +77,23 @@ public class SocketClient implements Client, Runnable {
                 outputStream.flush();
             }
 
-            if (replicate) {
-                Thread.ofVirtual().start(new Runnable() {
-
-
-                    @Override
-                    @SneakyThrows
-                    public void run() {
-                        while (socket.isConnected()) {
-                            final RValue request;
-                            try {
-                                request = deserializer.read();
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                            if (request == null) break;
-
-                            final var consumer = replicateConsumer;
-                            if (consumer != null) consumer.accept(request);
-                        }
-                    }
-                });
-            }
-
+//            if (replicate) {
+//                Thread.ofVirtual().start(new Runnable() {
+//
+//                    @Override
+//                    @SneakyThrows
+//                    public void run() {
+//                        while (socket.isConnected()) {
+//                            final RValue request;
+//                            request = deserializer.read();
+//                            if (request == null) break;
+//
+//                            final var consumer = replicateConsumer;
+//                            if (consumer != null) consumer.accept(request);
+//                        }
+//                    }
+//                });
+//            }
 
         } catch (Exception exception) {
             Redis.error("%d: returned an error: %s".formatted(id, exception.getMessage()));
