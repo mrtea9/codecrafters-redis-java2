@@ -77,4 +77,8 @@ public class Redis {
     public Storage getStorage() {
         return storage;
     }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
 }

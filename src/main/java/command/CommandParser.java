@@ -1,12 +1,9 @@
 package command;
 
-import command.builtin.EchoCommand;
-import command.builtin.GetCommand;
-import command.builtin.SetCommand;
+import command.builtin.*;
 import type.RArray;
 import type.RError;
 import type.RString;
-import command.builtin.PingCommand;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -23,6 +20,8 @@ public class CommandParser {
     private final Map<String, BiFunction<String, List<RString>, Command>> parsers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public CommandParser() {
+
+        register("CONFIG", doubleArgumentCommand(ConfigCommand::new));
         register("PING", noArgumentCommand(PingCommand::new));
         register("ECHO", singleArgumentCommand(EchoCommand::new));
         register("SET", this::parseSet);
@@ -60,6 +59,17 @@ public class CommandParser {
 
             final var first = arguments.getFirst();
             return constructor.apply(first);
+        };
+    }
+
+    private BiFunction<String, List<RString>, Command> doubleArgumentCommand(BiFunction<RString, RString, Command> constructor) {
+        return (name, arguments) -> {
+            if (arguments.size() != 2) throw wrongNumberOfArguments(name).asException();
+
+            final var first = arguments.get(0);
+            final var second = arguments.get(1);
+
+            return constructor.apply(first, second);
         };
     }
 

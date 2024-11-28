@@ -55,17 +55,10 @@ public class Main {
         final var directory = configuration.directory().pathArgument();
         final var databaseFilename = configuration.databaseFilename().pathArgument();
 
-        System.out.println(directory.get());
-        System.out.println(databaseFilename.get());
         if (directory.isSet() && databaseFilename.isSet()) {
           final var path = Paths.get(directory.get(), databaseFilename.get());
-          System.out.println(path.toString());
 
-          File file = new File(String.valueOf(path));
-
-          System.out.println(Files.exists(path));
           if (Files.exists(path)) {
-              System.out.println("este");
               RdbLoader.load(path, storage);
           }
         }
