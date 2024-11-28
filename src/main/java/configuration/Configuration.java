@@ -40,6 +40,7 @@ public class Configuration {
     }
 
     public boolean isSlave() {
+        System.out.println("este");
         return replicaOf.hostAndPortArgument().isSet();
     }
 
