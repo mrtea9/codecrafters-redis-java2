@@ -1,13 +1,12 @@
 package redis;
 
 import client.Client;
-import client.SocketClient;
 import command.CommandParser;
 import command.CommandResponse;
 import command.ParsedCommand;
 import configuration.Configuration;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import store.Storage;
 import type.RArray;
 import type.RError;
 import type.RErrorException;
@@ -18,10 +17,12 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class Redis {
 
+    private final Storage storage;
     private final Configuration configuration;
     private final CommandParser commandParser = new CommandParser();
 
-    public Redis(Configuration configuration) {
+    public Redis(Storage storage, Configuration configuration) {
+        this.storage = storage;
         this.configuration = configuration;
     }
 
@@ -73,4 +74,7 @@ public class Redis {
         System.err.println("[%d] [%s] %s".formatted(ProcessHandle.current().pid(), LocalDateTime.now(), message));
     }
 
+    public Storage getStorage() {
+        return storage;
+    }
 }

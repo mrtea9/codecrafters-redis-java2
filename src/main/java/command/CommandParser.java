@@ -1,13 +1,18 @@
 package command;
 
 import command.builtin.EchoCommand;
+import command.builtin.GetCommand;
+import command.builtin.SetCommand;
 import type.RArray;
 import type.RError;
 import type.RString;
 import command.builtin.PingCommand;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -20,6 +25,8 @@ public class CommandParser {
     public CommandParser() {
         register("PING", noArgumentCommand(PingCommand::new));
         register("ECHO", singleArgumentCommand(EchoCommand::new));
+        register("SET", this::parseSet);
+        register("GET", singleArgumentCommand(GetCommand::new));
     }
 
     public void register(String name, BiFunction<String, List<RString>, Command> parser) {
@@ -54,6 +61,23 @@ public class CommandParser {
             final var first = arguments.getFirst();
             return constructor.apply(first);
         };
+    }
+
+    private SetCommand parseSet(String name, List<RString> arguments) {
+        if (arguments.size() != 2 && arguments.size() != 4) throw wrongNumberOfArguments(name).asException();
+
+        final var key = arguments.get(0);
+        final var value = arguments.get(1);
+        var expiration = Optional.<Duration>empty();
+
+        if (arguments.size() == 4) {
+            final var px = arguments.get(2);
+            if (!RString.equalsIgnoreCase(px, "px")) throw RError.syntax().asException();
+
+            expiration = Optional.of(arguments.get(3).asDuration(ChronoUnit.MILLIS));
+        }
+
+        return new SetCommand(key, value, expiration);
     }
 
     private RError wrongNumberOfArguments(String name) {
